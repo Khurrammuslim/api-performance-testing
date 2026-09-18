@@ -2,13 +2,21 @@
   "name": "api-performance-testing",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "reset-db": "cp db.seed.json db.json",
+    "mock-server": "npm run reset-db && npx kill-port 3000 && json-server db.json --port 3000",
+    "test:full": "concurrently -k -s first \"npm run mock-server\" \"wait-on http://localhost:3000/users && playwright test\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.6.1"
+    "@types/node": "^26.6.1",
+    "concurrently": "^9.2.4",
+    "json-server": "^0.17.4",
+    "kill-port": "^2.0.1",
+    "wait-on": "^9.1.0"
   }
 }
