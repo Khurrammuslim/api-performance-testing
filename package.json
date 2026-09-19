@@ -5,7 +5,8 @@
   "scripts": {
     "reset-db": "cp db.seed.json db.json",
     "mock-server": "npm run reset-db && npx kill-port 3000 && json-server db.json --port 3000",
-    "test:full": "concurrently -k -s first \"npm run mock-server\" \"wait-on http://localhost:3000/users && playwright test\""
+    "test:full": "concurrently -k -s first \"npm run mock-server\" \"wait-on http://localhost:3000/users && playwright test\"",
+    "perf:smoke": "k6 run tests/performance/smoke-test.js"
   },
   "keywords": [],
   "author": "",
