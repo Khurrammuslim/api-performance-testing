@@ -11,10 +11,20 @@ testing (k6) — part of a multi-stack QA portfolio build.
 - GitHub Actions (CI/CD)
 
 ## Roadmap
-- [x] Project scaffold
-- [ ] REST API test suite
-- [ ] Performance/load testing with k6
-- [ ] CI integration
+- [x] Project scaffold + CI setup
+- [x] CRUD API tests (JSONPlaceholder)
+- [x] Auth flow tests (Reqres)
+- [x] Schema validation (Zod)
+- [x] Negative/error test coverage (400/404)
+- [ ] Performance testing (k6)
 
 ## Status
 🚧 Work in progress
+
+## Known Limitations
+- Reqres.in's public documentation initially suggested all `/api/*` endpoints 
+  require an `x-api-key` header. Empirical testing revealed that only the 
+  paid "Projects/Collections" feature enforces this — the classic demo 
+  endpoints (`/users`, `/login`, `/register`) used in this suite are public 
+  and require no authentication. Tests were adjusted to reflect actual, 
+  verified API behavior rather than assumed behavior.
