@@ -8,7 +8,9 @@
     "test:full": "concurrently -k -s first \"npm run mock-server\" \"wait-on http://localhost:3000/users && playwright test\"",
     "perf:smoke": "k6 run tests/performance/smoke-test.js",
     "perf:load": "k6 run tests/performance/load-test.js",
-    "perf:steady": "k6 run tests/performance/steady-load.js"
+    "perf:steady": "k6 run tests/performance/steady-load.js",
+    "perf:stress": "k6 run tests/performance/stress-test.js",
+    "perf:spike": "k6 run tests/performance/spike-test.js"
   },
   "keywords": [],
   "author": "",
