@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
+import { PostSchema, PostsArraySchema } from '../../src/schemas/post.schema';
+import { z } from 'zod';
 
 const BASE_URL =  'https://jsonplaceholder.typicode.com';
+const BrokenSchema = z.object({
+        id: z.number(),
+        title: z.string(),
+        wrongField: z.string(),
+    });
 
 test.describe('Posts CRUD - JSONPlaceholder', () => {
     test('GET all posts return 200 and array', async ({ request }) => {
@@ -70,5 +77,37 @@ test.describe('Posts CRUD - JSONPlaceholder', () => {
   test('GET non-existent post returns 404', async ({ request }) => {
     const response = await request.get(`${BASE_URL}/posts/99999`);
     expect(response.status()).toBe(404);
+    });
+
+  test('GET all posts returns valid schema', async ({ request }) => {
+    const response = await request.get(`${BASE_URL}/posts`);
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+    
+    const result = PostsArraySchema.safeParse(body);
+    expect(result.success).toBe(true);
+    });
+
+  test('GET single post returns valid schema', async ({ request }) => {
+    const response = await request.get(`${BASE_URL}/posts/1`);
+    const body = await response.json();
+
+    const result = PostSchema.safeParse(body);
+    
+    if (!result.success) {
+        console.log(result.error.issues); 
+    }
+    expect(result.success).toBe(true);
+    });
+
+  test('demonstrates schema failure output', async ({ request }) => {
+
+    const response = await request.get(`${BASE_URL}/posts/1`);
+    const body = await response.json();
+    const result = BrokenSchema.safeParse(body);
+    
+    console.log(result.error?.issues); 
+    expect(result.success).toBe(false);
     });
 });
