@@ -4,6 +4,17 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      perf_test:
+        description: 'Which performance test to run'
+        required: true
+        type: choice
+        options:
+          - load
+          - stress
+          - spike
+          - steady
 
 jobs:
   api-tests:
@@ -67,3 +78,38 @@ jobs:
         name: k6-performance-reports
         path: reports/
         retention-days: 30
+
+  performance-manual:
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+    - name: Reset mock database
+      run: cp db.seed.json db.json
+    - name: Start mock API server
+      run: npx json-server db.json --port 3000 --host 0.0.0.0 &
+    - name: Wait for mock server to be ready
+      run: npx wait-on http://localhost:3000/users --timeout 30000
+    - name: Run selected k6 test
+      run: npm run perf:${{ github.event.inputs.perf_test }}
+    - name: Upload performance report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: k6-${{ github.event.inputs.perf_test }}-report
+        path: reports/
+        retention-days: 30  
