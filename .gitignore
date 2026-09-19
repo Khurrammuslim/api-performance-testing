@@ -8,3 +8,7 @@ node_modules/
 /playwright/.auth/
 db.json
 .env
+summary.json
+results.json
+*.json.gz
+reports/*.json
